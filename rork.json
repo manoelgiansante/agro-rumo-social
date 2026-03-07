@@ -1,0 +1,9 @@
+{
+  "apps": [
+    {
+      "name": "Controle Social",
+      "path": "ios",
+      "framework": "swift"
+    }
+  ]
+}
