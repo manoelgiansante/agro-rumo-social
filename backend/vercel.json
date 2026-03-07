@@ -1,14 +1,15 @@
 {
-    "buildCommand": "bun install",
-    "routes": [
-          {
-                  "src": "/(.*)",
-                  "dest": "/hono.ts"
-          }
-    ],
-    "functions": {
-          "hono.ts": {
-                  "runtime": "@vercel/node@3"
-          }
-    }
+      "buildCommand": "bun install",
+      "builds": [
+              {
+                        "src": "hono.ts",
+                        "use": "@vercel/node"
+              }
+      ],
+      "routes": [
+              {
+                        "src": "/(.*)",
+                        "dest": "/hono.ts"
+              }
+      ]
 }
