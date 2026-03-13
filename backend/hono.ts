@@ -352,10 +352,10 @@ app.post("/oauth/refresh-tokens", async (c) => {
   try {
     // Fetch accounts expiring within 7 days
     const sevenDaysFromNow = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
-    const accounts = await supabaseRequest(
+    const accounts = (await supabaseRequest(
       `social_accounts?is_active=eq.true&token_expires_at=lt.${sevenDaysFromNow}&select=*`,
       "GET"
-    );
+    )) as any[];
 
     let refreshed = 0;
     let failed = 0;
