@@ -17,7 +17,6 @@ actor SupabaseService {
 
     private let baseURL: String
     private let anonKey: String
-    private let serviceRoleKey: String
 
     private let decoder: JSONDecoder = {
         let d = JSONDecoder()
@@ -49,12 +48,10 @@ actor SupabaseService {
     }()
 
     private init() {
-        let url = MainActor.assumeIsolated { Config.SUPABASE_URL }
-        let anon = MainActor.assumeIsolated { Config.SUPABASE_ANON_KEY }
-        let service = MainActor.assumeIsolated { Config.SUPABASE_SERVICE_ROLE_KEY }
-        self.baseURL = url.isEmpty ? "https://jxcnfyeemdltdfqtgbcl.supabase.co" : url
-        self.anonKey = anon.isEmpty ? "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp4Y25meWVlbWRsdGRmcXRnYmNsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg1MDQwNTksImV4cCI6MjA4NDA4MDA1OX0.MEqgaUHb0cDVoDrXY6rc1F6YJLxzbpNiks-SFRCg2go" : anon
-        self.serviceRoleKey = service.isEmpty ? "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp4Y25meWVlbWRsdGRmcXRnYmNsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2ODUwNDA1OSwiZXhwIjoyMDg0MDgwMDU5fQ.kSZ0Lm4UED4zDtdvESjC3Qtb-8jgpG_Hinir5Hp22pY" : service
+        self.baseURL = MainActor.assumeIsolated { Config.resolvedSupabaseURL }
+        self.anonKey = MainActor.assumeIsolated { Config.resolvedAnonKey }
+        // NOTE: SERVICE_ROLE_KEY removida do app iOS por seguranca.
+        // Operacoes que requerem service_role devem usar o backend (tRPC/Hono).
     }
 
     private func userToken() -> String? {
@@ -85,7 +82,13 @@ actor SupabaseService {
         request.setValue(anonKey, forHTTPHeaderField: "apikey")
 
         if useServiceRole {
-            request.setValue("Bearer \(serviceRoleKey)", forHTTPHeaderField: "Authorization")
+            // SERVICE_ROLE_KEY nao deve existir no client.
+            // Usa o user token se disponivel, senao anon key.
+            if let token = userToken() {
+                request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+            } else {
+                request.setValue("Bearer \(anonKey)", forHTTPHeaderField: "Authorization")
+            }
         } else if let token = userToken() {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         } else {
@@ -209,7 +212,12 @@ actor SupabaseService {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("Bearer \(serviceRoleKey)", forHTTPHeaderField: "Authorization")
+        // Edge functions chamadas com user token (RLS aplica seguranca)
+        if let token = userToken() {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        } else {
+            request.setValue("Bearer \(anonKey)", forHTTPHeaderField: "Authorization")
+        }
 
         if let body {
             request.httpBody = try JSONSerialization.data(withJSONObject: body)

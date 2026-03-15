@@ -8,7 +8,22 @@ import { createContext } from "./trpc/create-context";
 
 const app = new Hono();
 
-app.use("*", cors());
+app.use("*", cors({
+  origin: (origin) => {
+    // Permitir requests sem origin (mobile apps, curl, etc)
+    if (!origin) return "*";
+    // Permitir dominio do projeto e localhost para dev
+    const allowed = [
+      /\.vercel\.app$/,
+      /^https?:\/\/localhost(:\d+)?$/,
+      /^https?:\/\/127\.0\.0\.1(:\d+)?$/,
+    ];
+    return allowed.some((re) => re.test(origin)) ? origin : "";
+  },
+  allowMethods: ["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+  allowHeaders: ["Content-Type", "Authorization"],
+  maxAge: 86400,
+}));
 
 app.use(
   "/trpc/*",

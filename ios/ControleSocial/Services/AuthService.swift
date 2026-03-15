@@ -18,8 +18,7 @@ class AuthService {
 
     private init() {}
 
-    var baseURL: String { Config.SUPABASE_URL }
-    var anonKey: String { Config.SUPABASE_ANON_KEY }
+    // URL e key agora centralizadas em Config.resolvedSupabaseURL / Config.resolvedAnonKey
 
     func checkSession() async {
         isLoading = true
@@ -61,8 +60,8 @@ class AuthService {
         signUpSuccessMessage = nil
         defer { isLoading = false }
 
-        let resolvedURL = baseURL.isEmpty ? "https://jxcnfyeemdltdfqtgbcl.supabase.co" : baseURL
-        let resolvedKey = anonKey.isEmpty ? "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp4Y25meWVlbWRsdGRmcXRnYmNsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg1MDQwNTksImV4cCI6MjA4NDA4MDA1OX0.MEqgaUHb0cDVoDrXY6rc1F6YJLxzbpNiks-SFRCg2go" : anonKey
+        let resolvedURL = Config.resolvedSupabaseURL
+        let resolvedKey = Config.resolvedAnonKey
 
         print("[AUTH] SignUp starting for: \(email)")
         print("[AUTH] Using URL: \(resolvedURL)")
@@ -143,8 +142,8 @@ class AuthService {
         errorMessage = nil
         defer { isLoading = false }
 
-        let resolvedURL = baseURL.isEmpty ? "https://jxcnfyeemdltdfqtgbcl.supabase.co" : baseURL
-        let resolvedKey = anonKey.isEmpty ? "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp4Y25meWVlbWRsdGRmcXRnYmNsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg1MDQwNTksImV4cCI6MjA4NDA4MDA1OX0.MEqgaUHb0cDVoDrXY6rc1F6YJLxzbpNiks-SFRCg2go" : anonKey
+        let resolvedURL = Config.resolvedSupabaseURL
+        let resolvedKey = Config.resolvedAnonKey
 
         print("[AUTH] SignIn starting for: \(email)")
         print("[AUTH] Using URL: \(resolvedURL)")
@@ -220,8 +219,8 @@ class AuthService {
             throw AuthError.serverError(errorMessage!)
         }
 
-        let resolvedURL = baseURL.isEmpty ? "https://jxcnfyeemdltdfqtgbcl.supabase.co" : baseURL
-        let resolvedKey = anonKey.isEmpty ? "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp4Y25meWVlbWRsdGRmcXRnYmNsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg1MDQwNTksImV4cCI6MjA4NDA4MDA1OX0.MEqgaUHb0cDVoDrXY6rc1F6YJLxzbpNiks-SFRCg2go" : anonKey
+        let resolvedURL = Config.resolvedSupabaseURL
+        let resolvedKey = Config.resolvedAnonKey
 
         print("[AUTH] Apple SignIn starting")
 
@@ -318,8 +317,8 @@ class AuthService {
     }
 
     private func getUser(token: String) async throws -> AuthUser {
-        let resolvedURL = baseURL.isEmpty ? "https://jxcnfyeemdltdfqtgbcl.supabase.co" : baseURL
-        let resolvedKey = anonKey.isEmpty ? "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp4Y25meWVlbWRsdGRmcXRnYmNsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg1MDQwNTksImV4cCI6MjA4NDA4MDA1OX0.MEqgaUHb0cDVoDrXY6rc1F6YJLxzbpNiks-SFRCg2go" : anonKey
+        let resolvedURL = Config.resolvedSupabaseURL
+        let resolvedKey = Config.resolvedAnonKey
         guard let url = URL(string: "\(resolvedURL)/auth/v1/user") else { throw AuthError.networkError }
         var request = URLRequest(url: url)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -334,8 +333,8 @@ class AuthService {
     }
 
     private func refreshSession(refreshToken: String) async throws -> AuthSession {
-        let resolvedURL = baseURL.isEmpty ? "https://jxcnfyeemdltdfqtgbcl.supabase.co" : baseURL
-        let resolvedKey = anonKey.isEmpty ? "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp4Y25meWVlbWRsdGRmcXRnYmNsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg1MDQwNTksImV4cCI6MjA4NDA4MDA1OX0.MEqgaUHb0cDVoDrXY6rc1F6YJLxzbpNiks-SFRCg2go" : anonKey
+        let resolvedURL = Config.resolvedSupabaseURL
+        let resolvedKey = Config.resolvedAnonKey
         guard let url = URL(string: "\(resolvedURL)/auth/v1/token?grant_type=refresh_token") else { throw AuthError.networkError }
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -353,8 +352,8 @@ class AuthService {
     }
 
     private func loadProfile(userId: String, token: String) async {
-        let resolvedURL = baseURL.isEmpty ? "https://jxcnfyeemdltdfqtgbcl.supabase.co" : baseURL
-        let resolvedKey = anonKey.isEmpty ? "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp4Y25meWVlbWRsdGRmcXRnYmNsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg1MDQwNTksImV4cCI6MjA4NDA4MDA1OX0.MEqgaUHb0cDVoDrXY6rc1F6YJLxzbpNiks-SFRCg2go" : anonKey
+        let resolvedURL = Config.resolvedSupabaseURL
+        let resolvedKey = Config.resolvedAnonKey
         let urlString = "\(resolvedURL)/rest/v1/user_profiles?id=eq.\(userId)&select=*"
         guard let url = URL(string: urlString) else { return }
 
@@ -375,8 +374,8 @@ class AuthService {
     }
 
     private func createProfile(userId: String, fullName: String, token: String) async {
-        let resolvedURL = baseURL.isEmpty ? "https://jxcnfyeemdltdfqtgbcl.supabase.co" : baseURL
-        let resolvedKey = anonKey.isEmpty ? "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp4Y25meWVlbWRsdGRmcXRnYmNsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg1MDQwNTksImV4cCI6MjA4NDA4MDA1OX0.MEqgaUHb0cDVoDrXY6rc1F6YJLxzbpNiks-SFRCg2go" : anonKey
+        let resolvedURL = Config.resolvedSupabaseURL
+        let resolvedKey = Config.resolvedAnonKey
         let urlString = "\(resolvedURL)/rest/v1/user_profiles"
         guard let url = URL(string: urlString) else { return }
 
